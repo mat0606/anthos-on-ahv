@@ -22,10 +22,15 @@ resources:
       user_data: |-
         #cloud-config
         hostname: @@{name}@@
+        disable_root: False
+        ssh_enabled: True
+        ssh_pwauth: True
         users:
             - name: @@{CRED_OS.username}@@
+              passwd: @@{CRED_OS2.secret}@@
+              chpasswd: { expire: False }
               ssh-authorized-keys:
-                - @@{CRED_OS.public_key}@@
+                - @@{INSTANCE_PUBLIC_KEY}@@
               sudo: ['ALL=(ALL) NOPASSWD:ALL']
         runcmd:
             - yum install -y lvm2
@@ -34,5 +39,5 @@ resources:
     nic_type: NORMAL_NIC
     subnet_reference:
       kind: subnet
-      name: desktops
-      uuid: 0e26c135-d478-428e-9fb8-22c0acfa5f3a
+      name: Secondary_80
+      uuid: 7cd635a0-92fa-4e68-9d12-c82bb6fc3667

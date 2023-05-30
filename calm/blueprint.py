@@ -22,6 +22,16 @@ OS_KEY = os.getenv("CALMDSL_OS_KEY") or read_local_file(
 )
 CRED_OS = basic_cred(OS_USERNAME, OS_KEY, name="CRED_OS", type="KEY", default=True,)
 
+OS2_USERNAME = os.getenv("CALMDSL_OS2_USERNAME") or read_local_file(
+    os.path.join("secrets", "os2_username")
+)
+
+OS2_KEY = os.getenv("CALMDSL_OS2_KEY") or read_local_file(
+    os.path.join("secrets", "os2_key")
+)
+
+CRED_OS2 = basic_cred(OS2_USERNAME, OS2_KEY, name="CRED_OS2", type="KEY", default=True,)
+
 PC_USERNAME = os.getenv("CALMDSL_PC_USERNAME") or read_local_file(
     os.path.join("secrets", "pc_username")
 )
@@ -70,6 +80,28 @@ class ControlPlaneVMs(Service):
         )
 
     @action
+    def Centos_Install_IpTable_IScsi():
+        CalmTask.Exec.ssh(
+            filename=SHARED_SCRIPTS_PATH + "/centos_install_iptable_iscsi.sh",
+            name="Install_IpTable_IScsi",
+        )
+    
+    @action
+    def Centos_Remove_Docker():
+        CalmTask.Exec.ssh(
+            filename=SHARED_SCRIPTS_PATH + "/centos_remove_docker.sh",
+            name="Remove_Docker",
+        )
+
+    @action
+    def Centos_Change_Repo():
+        CalmTask.Exec.ssh(
+            filename=SHARED_SCRIPTS_PATH + "/centos_change_repo.sh",
+            name="Change CentOS repo",
+        )
+
+
+    @action
     def NTNXPC_Extend_Disk():
         CalmTask.Exec.escript(
             filename=LOCAL_SCRIPTS_PATH + "/ntnxpc_extend_disk.py",
@@ -84,6 +116,9 @@ class ControlPlaneVMs_Package(Package):
     @action
     def __install__():
         ControlPlaneVMs.NTNXPC_Extend_Disk(name="NTNXPC_Extend_Disk")
+        ControlPlaneVMs.Centos_Change_Repo(name="Centos_Change_Repo")
+        ControlPlaneVMs.Centos_Remove_Docker(name="Centos_Remove_Docker")
+        ControlPlaneVMs.Centos_Install_IpTable_IScsi(name="Centos_Install_IpTable_IScsi")
         ControlPlaneVMs.Centos_Install_Docker(name="Centos_Install_Docker")
 
 
@@ -119,12 +154,32 @@ class ControlPlaneVMs_Deployment(Deployment):
 # Anthos Worker VMs Service
 class WorkerNodesVMs(Service):
     """Worker Nodes VMs"""
-
     @action
     def Centos_Install_Docker():
         CalmTask.Exec.ssh(
             filename=SHARED_SCRIPTS_PATH + "/centos_install_docker.sh",
             name="Install_Docker",
+        )
+
+    @action
+    def Centos_Install_IpTable_IScsi():
+        CalmTask.Exec.ssh(
+            filename=SHARED_SCRIPTS_PATH + "/centos_install_iptable_iscsi.sh",
+            name="Install_IpTable_IScsi",
+        )
+    
+    @action
+    def Centos_Remove_Docker():
+        CalmTask.Exec.ssh(
+            filename=SHARED_SCRIPTS_PATH + "/centos_remove_docker.sh",
+            name="Remove_Docker",
+        )
+
+    @action
+    def Centos_Change_Repo():
+        CalmTask.Exec.ssh(
+            filename=SHARED_SCRIPTS_PATH + "/centos_change_repo.sh",
+            name="Change CentOS repo",
         )
 
     @action
@@ -142,6 +197,9 @@ class WorkerNodesVMs_Package(Package):
     @action
     def __install__():
         WorkerNodesVMs.NTNXPC_Extend_Disk(name="NTNXPC_Extend_Disk")
+        WorkerNodesVMs.Centos_Change_Repo(name="Centos_Change_Repo")
+        WorkerNodesVMs.Centos_Remove_Docker(name="Centos_Remove_Docker")
+        WorkerNodesVMs.Centos_Install_IpTable_IScsi(name="Centos_Install_IpTable_IScsi")
         WorkerNodesVMs.Centos_Install_Docker(name="Centos_Install_Docker")
 
 
@@ -263,6 +321,27 @@ class AdminVM(Service):
         )
 
     @action
+    def Centos_Install_IpTable_IScsi():
+        CalmTask.Exec.ssh(
+            filename=SHARED_SCRIPTS_PATH + "/centos_install_iptable_iscsi.sh",
+            name="Install_IpTable_IScsi",
+        )
+    
+    @action
+    def Centos_Remove_Docker():
+        CalmTask.Exec.ssh(
+            filename=SHARED_SCRIPTS_PATH + "/centos_remove_docker.sh",
+            name="Remove_Docker",
+        )
+
+    @action
+    def Centos_Change_Repo():
+        CalmTask.Exec.ssh(
+            filename=SHARED_SCRIPTS_PATH + "/centos_change_repo.sh",
+            name="Change CentOS repo",
+        )
+
+    @action
     def NTNXPC_Extend_Disk():
         CalmTask.Exec.escript(
             filename=LOCAL_SCRIPTS_PATH + "/ntnxpc_extend_disk.py",
@@ -290,6 +369,9 @@ class AdminVM_Package(Package):
     @action
     def __install__():
         AdminVM.NTNXPC_Extend_Disk(name="NTNXPC_Extend_Disk")
+        AdminVM.Centos_Change_Repo(name="Centos_Change_Repo")
+        AdminVM.Centos_Remove_Docker(name="Centos_Remove_Docker")
+        AdminVM.Centos_Install_IpTable_IScsi(name="Centos_Install_IpTable_IScsi")
         AdminVM.Centos_Install_Docker(name="Centos_Install_Docker")
         AdminVM.Gcloud_Install_SDK(name="Gcloud_Install_SDK")
 
@@ -331,6 +413,14 @@ class Default(Profile):
         WorkerNodesVMs_Deployment,
     ]
 
+    INSTANCE_PUBLIC_KEY = Variable.Simple.string(
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTDN+9nXEyb2TeWHHzjO6R8pkAQkgKEHYaVBAHRvEsdUmJ96CQzt2js7RaawZP2hS76/ULS1MvQJUg4HEpi+M4iVT3SUG5YYMv050SYwu3t4KrZviotB1U2ITPX5zG3fHjNjO1v8sEneJU2CDo/Dh08cYufsVjW0/qxqagrlXg0i9yaMaQGoHhvTj8abPlRjnDkifwTX5KmJrSOfcEhSt5JzeJ9V1JO0izKgDDziCWSmOge40uAhYatbzGgKPxBbxoL9rda5/l5jbBfiOCxAk5AY2IkusTAva/lBmviit7Y38DuL1eMvVdEW165CA2peGh1glNevDXWvZtIKENtoud",
+        name="INSTANCE_PUBLIC_KEY",
+        label="Centos Public Key",
+        description="""Public Key to Centos Disk Image""",
+        is_hidden=True,
+    )
+
     PYTHON_ANTHOS_GENCONFIG = Variable.Simple.string(
         "https://raw.githubusercontent.com/nutanixdev/anthos-on-ahv/main/scripts/anthos_generate_config.py",
         name="PYTHON_ANTHOS_GENCONFIG",
@@ -354,7 +444,7 @@ class Default(Profile):
     )
 
     ANTHOS_LB_ADDRESSPOOL = Variable.Simple.string(
-        "",
+        "10.42.80.140-10.42.80.145",
         name="ANTHOS_LB_ADDRESSPOOL",
         label="Anthos Load Balancing pool",
         regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)-(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
@@ -366,7 +456,7 @@ class Default(Profile):
     )
 
     ANTHOS_INGRESS_VIP = Variable.Simple.string(
-        "",
+        "10.42.80.140",
         name="ANTHOS_INGRESS_VIP",
         label="Anthos Kubernetes Ingress VIP",
         regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
@@ -378,7 +468,7 @@ class Default(Profile):
     )
 
     ANTHOS_CONTROLPLANE_VIP = Variable.Simple.string(
-        "",
+        "10.42.80.150",
         name="ANTHOS_CONTROLPLANE_VIP",
         label="Anthos cluster VIP",
         regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
@@ -413,7 +503,7 @@ class Default(Profile):
     )
 
     ANTHOS_VERSION = Variable.Simple.string(
-        "1.9.4",
+        "1.15.0",
         name="ANTHOS_VERSION",
         description="The supported versions are 1.6.x, 1.7.x, 1.8.x, and 1.9.x. Version 1.10.x is not supported yet but can be tested.",
         regex="^(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$",
@@ -424,7 +514,7 @@ class Default(Profile):
     )
 
     ANTHOS_CLUSTER_NAME = Variable.Simple.string(
-        "",
+        "anthos",
         name="ANTHOS_CLUSTER_NAME",
         description="Name must start with a lowercase letter followed by up to 39 lowercase letters, numbers, or hyphens, and cannot end with a hyphen. Name is permanent and unique",
         regex="^[a-z](?:[a-z0-9-]*[a-z0-9])?$",
@@ -435,7 +525,7 @@ class Default(Profile):
     )
 
     NTNX_PE_STORAGE_CONTAINER = Variable.Simple.string(
-        "",
+        "Anthos-K8S",
         name="NTNX_PE_STORAGE_CONTAINER",
         label="Storage Container in Prism Element",
         description="""This is the Nutanix Storage Container where the requested Persistent Volume Claims will
@@ -447,7 +537,7 @@ class Default(Profile):
     )
 
     NTNX_PE_DATASERVICE_IP = Variable.Simple.string(
-        "",
+        "10.42.80.38",
         name="NTNX_PE_DATASERVICE_IP",
         label="Data service IP address",
         regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
@@ -468,7 +558,7 @@ class Default(Profile):
     )
 
     NTNX_PE_IP = Variable.Simple.string(
-        "",
+        "10.42.80.37",
         name="NTNX_PE_IP",
         label="Prism Element VIP",
         regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
@@ -494,7 +584,7 @@ class Default(Profile):
     )
 
     NTNX_PC_IP = Variable.Simple.string(
-        "127.0.0.1",
+        "10.42.80.39",
         name="NTNX_PC_IP",
         label="Prism Central IP",
         regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
@@ -538,7 +628,7 @@ class Default(Profile):
         ANTHOS_VERSION = Variable.Simple.string(
             "",
             name="ANTHOS_VERSION",
-            description="The supported versions are 1.6.x, 1.7.x, 1.8.x, and 1.9.x. Version 1.10.x is not supported yet but can be tested.",
+            description="",
             regex="^(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$",
             validate_regex=True,
             label="Anthos cluster version",
