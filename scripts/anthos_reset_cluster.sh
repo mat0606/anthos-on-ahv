@@ -1,4 +1,4 @@
-# ============== DO NO CHANGE AFTER THIS ===============
+# ================= DO NO CHANGE AFTER THIS =================
 source ./variables.sh
 
 # Reset Anthos cluster before deleting
