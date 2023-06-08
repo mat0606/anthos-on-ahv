@@ -1,4 +1,3 @@
-# ============== DO NO CHANGE AFTER THIS ===============
 source ~/variables.sh
 
 current_anthos_version=$(kubectl get cluster --all-namespaces -o yaml | grep "^ *anthosBareMetalVersion:" | tr -s ' ' | cut -d ' ' -f3 | uniq )

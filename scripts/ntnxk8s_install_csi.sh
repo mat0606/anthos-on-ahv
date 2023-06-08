@@ -1,6 +1,5 @@
-# ============== DO NO CHANGE AFTER THIS ===============
 source ~/variables.sh
-echo '======Installing Nutanix CSI driver======'
+echo 'Installing Nutanix CSI driver'
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 helm repo add nutanix https://nutanix.github.io/helm/

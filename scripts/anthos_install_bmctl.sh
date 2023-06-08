@@ -1,6 +1,5 @@
 source ~/variables.sh
 
-#echo '======Installing BMCTL======'
 # Remove the equal sign from comment due to this bug https://jira.nutanix.com/browse/CALM-34278
 echo "Installing BMCTL"
 # Install Anthos CLI (bmctl)

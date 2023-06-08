@@ -1,6 +1,5 @@
 source ~/variables.sh
-echo '======Configure Cloud console======'
-# ============== DO NO CHANGE AFTER THIS ===============
+echo 'Configure Cloud console'
 
 cat <<EOF | kubectl apply -f -
 kind: ClusterRole

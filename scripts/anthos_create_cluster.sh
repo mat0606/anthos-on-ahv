@@ -1,4 +1,3 @@
-# ============== DO NO CHANGE AFTER THIS ===============
 source ~/variables.sh
 echo 'Creating Anthos cluster ...'
 echo "invoking $ANTHOS_CLUSTER_NAME"
